@@ -26,9 +26,11 @@ jobs:
         with:
           node-version: '20'
           cache: "pnpm"
+          cache-dependency-path: backend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: backend
 
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.1
