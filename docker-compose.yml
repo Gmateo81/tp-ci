@@ -7,9 +7,14 @@ services:
       - POSTGRES_USER=${DEFAULT_DATABASE_USER}
       - POSTGRES_PASSWORD=${DEFAULT_DATABASE_PASSWORD}
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DEFAULT_DATABASE_USER} -d ${DATABASE_NAME}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DEFAULT_DATABASE_USER} -d ${DATABASE_NAME}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
