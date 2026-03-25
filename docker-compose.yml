@@ -1,5 +1,5 @@
-services: 
-  db: 
+services:
+  db:
     image: postgres:latest
     restart: unless-stopped
     environment:
@@ -7,7 +7,7 @@ services:
       - POSTGRES_USER=${DEFAULT_DATABASE_USER}
       - POSTGRES_PASSWORD=${DEFAULT_POSTGRES_PASSWORD}
     volumes:
-    - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${DATABASE_NAME}"]
       interval: 5s
