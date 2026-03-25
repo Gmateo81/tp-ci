@@ -20,8 +20,11 @@ repos:
       - id: hadolint
 
   # eslint pour node.js
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.0.0
+  - repo: local
     hooks:
       - id: eslint
+        name: eslint
+        entry: pnpm eslint
+        language: system
         files: \.(js|ts)$
+        pass_filenames: true
