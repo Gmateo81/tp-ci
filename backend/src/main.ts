@@ -3,6 +3,9 @@ import cors from "cors";
 import type { Request, Response } from "express";
 import express from "express";
 import { Pool } from "pg";
+import { CityBody } from "./types/city";
+
+require("dotenv").config();
 
 // Check env variables
 const ADDR = process.env.CITY_API_ADDR || "127.0.0.1";
@@ -39,6 +42,8 @@ const pool = new Pool({
   port: parseInt(process.env.CITY_API_DB_PORT || "5432", 10),
   user: process.env.CITY_API_DB_USER,
   password: process.env.CITY_API_DB_PWD,
+  database: process.env.CITY_API_DB_NAME,
+
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
@@ -61,6 +66,33 @@ pool.query("SELECT NOW()", (err) => {
  */
 app.get("/_health", (_req: Request, res: Response) => {
   res.status(204).send();
+});
+
+/**
+ * POST /city
+ * Body: { department_code, insee_code?, zip_code?, name, lat, lon }
+ * Returns 201 with the created city row
+ */
+app.post("/city", async (req: Request, res: Response) => {
+  const { department_code, insee_code, zip_code, name, lat, lon } =
+    req.body as CityBody;
+
+  // Basic validation
+  if (!department_code || !name || lat === undefined || lon === undefined) {
+    res.status(400).json({
+      error: "Missing required fields: department_code, name, lat, lon",
+    });
+    return;
+  }
+
+  const result = await pool.query<CityBody>(
+    `INSERT INTO city (department_code, insee_code, zip_code, name, lat, lon)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING *`,
+    [department_code, insee_code ?? null, zip_code ?? null, name, lat, lon],
+  );
+
+  res.status(201).json(result.rows[0]);
 });
 
 const server = app.listen(PORT, ADDR, () => {
