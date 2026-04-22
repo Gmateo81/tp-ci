@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import { app } from "../backend/src/main";
+import { app } from "../src/main";
 
 describe("GET /_health", () => {
   it("should return 204 No Content", async () => {

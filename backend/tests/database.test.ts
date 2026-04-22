@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import { app } from "../backend/src/main";
+import { app } from "../src/main";
 import { testPool } from "./setup";
 
 describe("POST /city — insertion", () => {
@@ -16,12 +16,10 @@ describe("POST /city — insertion", () => {
 
     const res = await request(app).post("/city").send(payload);
 
-    // Vérifie la réponse HTTP
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject(payload);
     expect(res.body.id).toBeDefined();
 
-    // Vérifie la persistance réelle en base de données
     const { rows } = await testPool.query(
       "SELECT * FROM city WHERE name = $1",
       ["Paris"],

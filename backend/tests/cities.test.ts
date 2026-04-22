@@ -1,6 +1,6 @@
 import request from "supertest";
 
-import { app } from "../backend/src/main";
+import { app } from "../src/main";
 import { testPool } from "./setup";
 
 describe("GET /cities — liste des villes", () => {
