@@ -7,17 +7,12 @@ import { City, CityBody } from "./types/city";
 
 require("dotenv").config();
 
-// Check env variables
-const ADDR = process.env.CITY_API_ADDR || "127.0.0.1";
-const PORT = parseInt(process.env.CITY_API_PORT || "2022", 10);
-
 // Validate required environment variables
 const requiredEnvVars = [
   "CITY_API_DB_URL",
   "CITY_API_DB_USER",
   "CITY_API_DB_PWD",
 ];
-
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     console.error(`Missing required environment variable: ${envVar}`);
@@ -25,52 +20,40 @@ for (const envVar of requiredEnvVars) {
   }
 }
 
-export const app = express();
+const ADDR = process.env.CITY_API_ADDR || "127.0.0.1";
+const PORT = parseInt(process.env.CITY_API_PORT || "2022", 10);
 
-app.use(
-  cors({
-    origin: `http://${ADDR}:${PORT}`,
-    methods: ["GET"],
-    allowedHeaders: ["Content-Type"],
-  }),
-);
-
-app.use(express.json());
-// Configure connexions to database
-const pool = new Pool({
+export const pool = new Pool({
   host: process.env.CITY_API_DB_URL,
   port: parseInt(process.env.CITY_API_DB_PORT || "5432", 10),
   user: process.env.CITY_API_DB_USER,
   password: process.env.CITY_API_DB_PWD,
   database: process.env.CITY_API_DB_NAME,
-
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
 
-// Test connection on startup (will fail if DB is not ready)
-pool.query("SELECT NOW()", (err) => {
-  if (err) {
-    console.error("Database connection failed:", err.message);
-    process.exit(1);
-  }
-  console.log("Database connected successfully");
-});
+export const app = express();
 
-// Routes
+app.use(
+  cors({
+    origin: `http://${ADDR}:${PORT}`,
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+  }),
+);
+app.use(express.json());
 
 /**
- * GET /_health
- * Returns a 204 code (No Content)
+ * GET /_health — returns 204 No Content
  */
 app.get("/_health", (_req: Request, res: Response) => {
   res.status(204).send();
 });
 
 /**
- *  GET /cities
- *  Returns 200 with the list of towns
+ * GET /cities — returns 200 with the list of cities
  */
 app.get("/cities", async (_req: Request, res: Response) => {
   const result = await pool.query<City>("SELECT * FROM city");
@@ -78,15 +61,12 @@ app.get("/cities", async (_req: Request, res: Response) => {
 });
 
 /**
- * POST /city
- * Body: { department_code, insee_code?, zip_code?, name, lat, lon }
- * Returns 201 with the created city row
+ * POST /city — creates a city, returns 201 with the created row
  */
 app.post("/city", async (req: Request, res: Response) => {
   const { department_code, insee_code, zip_code, name, lat, lon } =
     req.body as CityBody;
 
-  // Basic validation
   if (!department_code || !name || lat === undefined || lon === undefined) {
     res.status(400).json({
       error: "Missing required fields: department_code, name, lat, lon",
@@ -104,36 +84,30 @@ app.post("/city", async (req: Request, res: Response) => {
   res.status(201).json(result.rows[0]);
 });
 
-const server = app.listen(PORT, ADDR, () => {
-  console.log(`Backend listening on port ${PORT}`);
-  console.log(`Health check: http://${ADDR}:${PORT}/_health`);
-});
-
-// Graceful shutdown
-const shutdown = () => {
-  console.log("Shutting down gracefully...");
-
-  server.close(() => {
-    console.log("HTTP server closed");
-
-    pool.end(() => {
-      console.log("Database pool closed");
-      process.exit(0);
-    });
+if (require.main === module) {
+  pool.query("SELECT NOW()", (err) => {
+    if (err) {
+      console.error("Database connection failed:", err.message);
+      process.exit(1);
+    }
+    console.log("Database connected successfully");
   });
 
-  // Force shutdown after 10 seconds
-  setTimeout(() => {
-    console.error("Forced shutdown after timeout");
-    process.exit(1);
-  }, 10000);
-};
+  const server = app.listen(PORT, ADDR, () => {
+    console.log(`Backend listening on http://${ADDR}:${PORT}`);
+  });
 
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
+  const shutdown = () => {
+    server.close(() => {
+      pool.end(() => process.exit(0));
+    });
+    setTimeout(() => process.exit(1), 10000);
+  };
 
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
-  shutdown();
-});
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
+  process.on("unhandledRejection", (reason) => {
+    console.error("Unhandled rejection:", reason);
+    shutdown();
+  });
+}

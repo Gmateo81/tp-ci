@@ -3,9 +3,9 @@ services:
     image: postgres:latest
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=${DATABASE_NAME}
-      - POSTGRES_USER=${DEFAULT_DATABASE_USER}
-      - POSTGRES_PASSWORD=${DEFAULT_DATABASE_PASSWORD}
+      - POSTGRES_DB=${CITY_API_DB_NAME}
+      - POSTGRES_USER=${CITY_API_DB_USER}
+      - POSTGRES_PASSWORD=${CITY_API_DB_PWD}
     ports:
       - "5432:5432"
     volumes:
@@ -15,11 +15,28 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U ${DEFAULT_DATABASE_USER} -d ${DATABASE_NAME}",
+          "pg_isready -U ${CITY_API_DB_USER} -d ${CITY_API_DB_NAME}",
         ]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 10s
+  db-test:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=city_api_test
+      - POSTGRES_USER=${CITY_API_DB_USER}
+      - POSTGRES_PASSWORD=${CITY_API_DB_PWD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CITY_API_DB_USER} -d city_api_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 volumes:
   db_data:
