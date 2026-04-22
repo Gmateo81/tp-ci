@@ -1,11 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "packageRules": [
     {
       "matchPackageNames": ["node"],
       "enabled": false
     }
   ],
-  "baseBranches": ["main"]
+  "baseBranchePatterns": ["main"],
+  "repositories": ["Gmateo81/tp-ci/"]
 }
