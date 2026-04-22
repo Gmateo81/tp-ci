@@ -21,5 +21,24 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      CITY_API_ADDR: ${CITY_API_ADDR}
+      CITY_API_PORT: ${CITY_API_PORT}
+      CITY_API_DB_URL: ${CITY_API_DB_URL}
+      CITY_API_DB_PORT: ${CITY_API_DB_PORT}
+      CITY_API_DB_USER: ${DEFAULT_DATABASE_USER}
+      CITY_API_DB_PWD: ${DEFAULT_DATABASE_PASSWORD}
+      CITY_API_DB_NAME: ${DATABASE_NAME}
+    ports:
+      - "2022:2022"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   db_data:
