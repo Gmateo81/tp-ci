@@ -1,0 +1,53 @@
+name: build
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t backend:latest ./backend
+
+      # Analyse repo for security vulnerabilities
+      - name: Run Trivy vulnerability scanner (FS mode)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          ignore-unfixed: true
+          format: "sarif"
+          output: "trivy-fs-results.sarif"
+          severity: "CRITICAL,HIGH"
+          scanners: "vuln,secret,config"
+          exit-code: "1"
+
+      - name: Upload Trivy FS scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-fs-results.sarif"
+          category: "trivy-fs"
+
+      # Analyse docker image for security vulnerabilities
+      - name: Run Trivy vulnerability scanner (Image mode)
+        if: github.ref == 'refs/heads/main'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "backend:latest"
+          ignore-unfixed: true
+          format: "sarif"
+          output: "trivy-image-results.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+
+      - name: Upload Trivy Image scan results
+        if: github.ref == 'refs/heads/main' && always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-image-results.sarif"
+          category: "trivy-image"
