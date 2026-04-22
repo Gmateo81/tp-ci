@@ -3,7 +3,7 @@ import cors from "cors";
 import type { Request, Response } from "express";
 import express from "express";
 import { Pool } from "pg";
-import { CityBody } from "./types/city";
+import { City, CityBody } from "./types/city";
 
 require("dotenv").config();
 
@@ -66,6 +66,15 @@ pool.query("SELECT NOW()", (err) => {
  */
 app.get("/_health", (_req: Request, res: Response) => {
   res.status(204).send();
+});
+
+/**
+ *  GET /cities
+ *  Returns 200 with the list of towns
+ */
+app.get("/cities", async (_req: Request, res: Response) => {
+  const result = await pool.query<City>("SELECT * FROM city");
+  res.status(200).json(result.rows);
 });
 
 /**
