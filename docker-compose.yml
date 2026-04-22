@@ -21,22 +21,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-  db-test:
-    image: postgres:latest
-    environment:
-      - POSTGRES_DB=city_api_test
-      - POSTGRES_USER=${CITY_API_DB_USER}
-      - POSTGRES_PASSWORD=${CITY_API_DB_PWD}
-    ports:
-      - "5433:5432"
-    volumes:
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${CITY_API_DB_USER} -d city_api_test"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
 volumes:
   db_data:

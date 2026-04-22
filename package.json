@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "jest",
-    "pretest:local": "docker compose up db-test -d --wait",
-    "test:local": "CITY_API_DB_PORT=5433 CITY_API_DB_NAME=city_api_test jest",
-    "posttest:local": "docker compose stop db-test && docker compose rm -f db-test"
+    "test": "jest"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
