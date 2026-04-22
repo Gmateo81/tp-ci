@@ -26,6 +26,10 @@ COPY package.json ./
 
 EXPOSE 2022
 
+RUN addgroup -S app && adduser -S app -G app
+
+USER app
+
 HEALTHCHECK CMD wget -q --spider http://localhost:2022/_health || exit 1
 
 CMD ["node", "dist/main.js"]
