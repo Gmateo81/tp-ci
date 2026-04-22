@@ -1,5 +1,4 @@
 name: build
-
 on:
   push:
     branches: ["**"]
@@ -10,6 +9,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,8 +34,19 @@ jobs:
           category: "trivy-fs"
 
       # Build docker image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build with layer caching
       - name: Build backend image
-        run: docker build -t backend:latest ./backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          tags: backend:latest
+          # Load the built image into the local Docker daemon so Trivy can scan it
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # Analyse docker image for security vulnerabilities
       - name: Run Trivy vulnerability scanner (Image mode)
