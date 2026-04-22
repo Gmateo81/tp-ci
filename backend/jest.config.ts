@@ -1,0 +1,11 @@
+export default {
+  preset: "ts-jest",
+  testEnvironment: "node",
+  testMatch: ["**/tests/**/*.test.ts"],
+  setupFilesAfterEnv: ["./tests/setup.ts"],
+  forceExit: true,
+  globalSetup: "./tests/globalSetup.ts",
+  transform: {
+    "^.+\\.tsx?$": ["ts-jest", { tsconfig: "./tsconfig.json" }],
+  },
+};
