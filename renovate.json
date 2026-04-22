@@ -7,6 +7,5 @@
       "enabled": false
     }
   ],
-  "baseBranchPatterns": ["main"],
-  "repositories": ["Gmateo81/tp-ci"]
+  "baseBranchPatterns": ["main"]
 }
