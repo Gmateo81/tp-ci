@@ -17,6 +17,13 @@ RUN pnpm build && pnpm prune --prod
 FROM node:22-alpine
 
 WORKDIR /app
+# Remove package managers — runtime only needs node
+RUN rm -rf /usr/local/lib/node_modules/npm \
+           /usr/local/lib/node_modules/corepack \
+           /usr/local/bin/npm \
+           /usr/local/bin/npx \
+           /usr/local/bin/corepack \
+           /opt/yarn*
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
