@@ -69,7 +69,7 @@ app.post("/city", async (req: Request, res: Response) => {
 
   if (!department_code || !name || lat === undefined || lon === undefined) {
     res.status(400).json({
-      error: "Missing expected fields: department_code, name, lat, lon",
+      error: "Missing required fields: department_code, name, lat, lon",
     });
     return;
   }
