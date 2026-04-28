@@ -21,7 +21,7 @@ for (const envVar of requiredEnvVars) {
 }
 
 const ADDR = process.env.CITY_API_ADDR || "127.0.0.1";
-const PORT = parseInt(process.env.CITY_API_PORT || "2022", 10);
+const PORT = parseInt(process.env.CITY_API_PORT || "0", 10);
 
 export const pool = new Pool({
   host: process.env.CITY_API_DB_URL,
@@ -56,7 +56,7 @@ app.get("/_health", (_req: Request, res: Response) => {
  * GET /cities — returns 200 with the list of cities
  */
 app.get("/cities", async (_req: Request, res: Response) => {
-  const result = await pool.query<City>("SELECT * FROM city LIMIT 1");
+  const result = await pool.query<City>("SELECT * FROM city");
   res.status(200).json(result.rows);
 });
 
