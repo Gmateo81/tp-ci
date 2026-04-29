@@ -56,7 +56,9 @@ app.get("/_health", (_req: Request, res: Response) => {
  * GET /cities — returns 200 with the list of cities
  */
 app.get("/cities", async (_req: Request, res: Response) => {
-  const result = await pool.query<City>("SELECT * FROM city");
+  const result = await pool.query<City>(
+    "SELECT id, name, department_code FROM city",
+  );
   res.status(200).json(result.rows);
 });
 
