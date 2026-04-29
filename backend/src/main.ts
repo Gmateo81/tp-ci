@@ -56,7 +56,9 @@ app.get("/_health", (_req: Request, res: Response) => {
  * GET /cities — returns 200 with the list of cities
  */
 app.get("/cities", async (_req: Request, res: Response) => {
-  const result = await pool.query<City>("SELECT * FROM city");
+  const result = await pool.query<City>(
+    "SELECT department_code, name FROM city",
+  );
   res.status(200).json(result.rows);
 });
 
@@ -90,7 +92,7 @@ if (require.main === module) {
       console.error("Database connection failed:", err.message);
       process.exit(1);
     }
-    console.log("Database connected successfully");
+    console.log("Database connected very successfully");
   });
 
   const server = app.listen(PORT, ADDR, () => {
