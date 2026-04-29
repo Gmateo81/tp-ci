@@ -5,6 +5,10 @@
     {
       "matchPackageNames": ["node"],
       "enabled": false
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "enabled": false
     }
   ],
   "baseBranchPatterns": ["main"]
