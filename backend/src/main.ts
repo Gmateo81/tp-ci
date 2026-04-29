@@ -90,7 +90,7 @@ if (require.main === module) {
       console.error("Database connection failed:", err.message);
       process.exit(1);
     }
-    console.log("Database connected successfully");
+    console.log("Database connected very successfully");
   });
 
   const server = app.listen(PORT, ADDR, () => {
