@@ -21,7 +21,7 @@ for (const envVar of requiredEnvVars) {
 }
 
 const ADDR = process.env.CITY_API_ADDR || "127.0.0.1";
-const PORT = parseInt(process.env.CITY_API_PORT || "0", 10);
+const PORT = parseInt(process.env.CITY_API_PORT || "2022", 10);
 
 export const pool = new Pool({
   host: process.env.CITY_API_DB_URL,
@@ -69,7 +69,7 @@ app.post("/city", async (req: Request, res: Response) => {
 
   if (!department_code || !name || lat === undefined || lon === undefined) {
     res.status(400).json({
-      error: "Missing expected fields: department_code, name, lat, lon",
+      error: "Missing required fields: department_code, name, lat, lon",
     });
     return;
   }
